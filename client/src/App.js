@@ -3,6 +3,7 @@ import logo from "./logo.svg";
 import "./App.css";
 import Search from "./components/Search";
 import axios from "axios";
+import Results from "./components/Results";
 
 function App() {
   const apiurl = "http://www.omdbapi.com/?i=tt3896198&apikey=cb0eb1c7";
@@ -14,8 +15,11 @@ function App() {
   });
   const search = (e) => {
     if (e.key === "Enter") {
-      axios(apiurl + "&s=" + state.s).then((data) => {
-        console.log(data);
+      axios(apiurl + "&s=" + state.s).then(({ data }) => {
+        let result = data.Search;
+        setState((prevState) => {
+          return { ...prevState, results: result };
+        });
       });
     }
   };
@@ -32,6 +36,7 @@ function App() {
       </header>
       <main>
         <Search handleInput={handleInput} search={search} />
+        <Results results={state.results} />
       </main>
     </div>
   );
