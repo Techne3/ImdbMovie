@@ -1,9 +1,16 @@
 import React from "react";
 
-function AddedMovies() {
+function AddedMovies({ selected }) {
   return (
     <div>
-      <h1>Added</h1>
+      {selected.map((x) => {
+        return (
+          <>
+            <h1>{x.Title}</h1>
+            <button>Clear</button>
+          </>
+        );
+      })}
     </div>
   );
 }

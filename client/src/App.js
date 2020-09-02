@@ -15,6 +15,8 @@ function App() {
     results: [],
     selected: {},
   });
+  const [nom, SetNom] = useState([]);
+
   const search = (e) => {
     if (e.key === "Enter") {
       axios(apiurl + "&s=" + state.s).then(({ data }) => {
@@ -50,16 +52,17 @@ function App() {
     });
   };
 
-  const addMovie = (e) => {
-    axios(apiurl + "&i=" + id).then(({ data }) => {
-      let result = data;
-      console.log(result);
-
-      setState((prevState) => {
-        return { ...prevState, selected: result };
+  const addMovie = (id) => {
+    if (nom.length < 5) {
+      console.log(nom.length, "lenth");
+      axios(apiurl + "&i=" + id).then(({ data }) => {
+        let result = data;
+        console.log(result);
+        SetNom([...nom, result]);
       });
-    });
+    }
   };
+  console.log(nom, "this is nom");
   return (
     <div className="App">
       <header>
@@ -67,13 +70,19 @@ function App() {
       </header>
       <main>
         <Search handleInput={handleInput} search={search} />
-        <Results results={state.results} openPopup={openPopup} />
-        <AddedMovies />
-        {typeof state.selected.Title !== "undefined" ? (
+        <Results
+          results={state.results}
+          openPopup={openPopup}
+          addMovie={addMovie}
+        />
+
+        <AddedMovies selected={nom} />
+
+        {/* {typeof state.selected.Title !== "undefined" ? (
           <PopUP selected={state.selected} closePopup={closePopup} />
         ) : (
           false
-        )}
+        )} */}
       </main>
     </div>
   );
