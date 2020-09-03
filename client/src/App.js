@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import Search from "./components/Search";
@@ -6,6 +6,8 @@ import axios from "axios";
 import Results from "./components/Results";
 import PopUP from "./components/PopUP";
 import AddedMovies from "./components/AddedMovies";
+import Loader from "react-loader-spinner";
+import Banner from "./components/Banner";
 
 function App() {
   const apiurl = "http://www.omdbapi.com/?apikey=cb0eb1c7";
@@ -14,16 +16,19 @@ function App() {
     s: "",
     results: [],
     selected: {},
+    loading: false,
   });
-  const [nom, SetNom] = useState([]);
+  const [nominated, SetNominated] = useState([]);
+  // const [loading, setLoading] = useState(true);
 
   const search = (e) => {
     if (e.key === "Enter") {
+      setState({ loading: true });
       axios(apiurl + "&s=" + state.s).then(({ data }) => {
         let result = data.Search;
         // console.log(data, "this is result");
         setState((prevState) => {
-          return { ...prevState, results: result };
+          return { ...prevState, results: result, loading: false };
         });
       });
     }
@@ -52,17 +57,25 @@ function App() {
     });
   };
 
+  const removeNominated = (id) => {
+    axios(apiurl + "&i=" + id).then(({ data }) => {
+      let result = data;
+      console.log(result);
+      SetNominated(nominated.filter((x) => x.imdbID !== id));
+    });
+  };
+
   const addMovie = (id) => {
-    if (nom.length < 5) {
-      console.log(nom.length, "lenth");
+    if (nominated.length < 5) {
       axios(apiurl + "&i=" + id).then(({ data }) => {
         let result = data;
         console.log(result);
-        SetNom([...nom, result]);
+
+        SetNominated([...nominated, result]);
       });
     }
   };
-  console.log(nom, "this is nom");
+
   return (
     <div className="App">
       <header>
@@ -70,13 +83,26 @@ function App() {
       </header>
       <main>
         <Search handleInput={handleInput} search={search} />
-        <Results
-          results={state.results}
-          openPopup={openPopup}
-          addMovie={addMovie}
-        />
+        {state.loading ? (
+          <div className="loading">
+            <Loader type="Circles" color="#40968e" height={200} width={150} />
+          </div>
+        ) : (
+          <Results
+            results={state.results}
+            openPopup={openPopup}
+            addMovie={addMovie}
+          />
+        )}
 
-        <AddedMovies selected={nom} />
+        {nominated.length ? (
+          <AddedMovies
+            nominated={nominated}
+            removeNominated={removeNominated}
+          />
+        ) : (
+          false
+        )}
 
         {/* {typeof state.selected.Title !== "undefined" ? (
           <PopUP selected={state.selected} closePopup={closePopup} />
@@ -89,3 +115,5 @@ function App() {
 }
 
 export default App;
+//   className={isMonth ? 'monthBtnOn' : 'monthBtnOff'}
+// onClick={() => setIsMonth(!isMonth)}
