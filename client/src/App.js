@@ -19,14 +19,15 @@ function App() {
     loading: false,
   });
   const [nominated, SetNominated] = useState([]);
-  // const [loading, setLoading] = useState(true);
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [selectedItem, setSelectedItem] = useState([]);
 
   const search = (e) => {
     if (e.key === "Enter") {
       setState({ loading: true });
-      axios(apiurl + "&s=" + state.s).then(({ data }) => {
+      axios(apiurl + "&s=" + state.s + "&type=movie").then(({ data }) => {
         let result = data.Search;
-        // console.log(data, "this is result");
+        console.log(data, "this is result");
         setState((prevState) => {
           return { ...prevState, results: result, loading: false };
         });
@@ -70,14 +71,25 @@ function App() {
       axios(apiurl + "&i=" + id).then(({ data }) => {
         let result = data;
         console.log(result);
-
+        setSelectedItem([...selectedItem, result.imdbID]);
         SetNominated([...nominated, result]);
+        setState((prevState) => {
+          return { ...prevState, isDisabled: true };
+        });
       });
     }
   };
 
+  //////////
+  const disabledBtn = (i) => {
+    // setSelectedItem(i);
+  };
+
+  // localStorage.setItem("dis", disabledBtn);
+  // console.log(isDisabled, "buttonß");
   return (
     <div className="App">
+      <button onClick={() => disabledBtn()}>button</button>
       <header>
         <h1>IMDB Movies</h1>
       </header>
@@ -91,7 +103,13 @@ function App() {
           <Results
             results={state.results}
             openPopup={openPopup}
+            // removeNominated={removeNominated}
             addMovie={addMovie}
+            disabledBtn={disabledBtn}
+            isDisabled={isDisabled}
+            setIsDisabled={setIsDisabled}
+            selectedItem={selectedItem}
+            setSelectedItem={setSelectedItem}
           />
         )}
 
@@ -99,6 +117,9 @@ function App() {
           <AddedMovies
             nominated={nominated}
             removeNominated={removeNominated}
+            disabledBtn={disabledBtn}
+            // isDisabled={isDisabled}
+            // setIsDisabled={setIsDisabled}
           />
         ) : (
           false
